@@ -32,7 +32,7 @@ use std::{collections::HashMap, io};
 //   hashmap will be easier to work with at stages 2 and 3.
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Bill {
     name:String,
     amount:f64,
@@ -227,4 +227,65 @@ fn run_program() -> Option<()> {
 
 fn main() {
     run_program();
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::{Bill, Bills};
+
+    #[test]
+    fn test_add_bill() {
+        let mut bills = Bills::new();
+        let bill = Bill {
+            name: "Electricity".to_string(),
+            amount: 100.0,
+        };
+        bills.add(bill.clone());
+        assert_eq!(bills.inner.contains_key(&bill.name), true);
+    }
+
+    #[test]
+    fn test_remove_bill() {
+        let mut bills = Bills::new();
+        let bill = Bill {
+            name: "Internet".to_string(),
+            amount: 50.0,
+        };
+        bills.add(bill.clone());
+        assert_eq!(bills.remove(&bill.name), true);
+        assert_eq!(bills.inner.contains_key(&bill.name), false);
+    }
+
+    #[test]
+    fn test_update_bill() {
+        let mut bills = Bills::new();
+        let bill = Bill {
+            name: "Water".to_string(),
+            amount: 75.0,
+        };
+        bills.add(bill.clone());
+        let new_amount = 80.0;
+        assert_eq!(bills.update(&bill.name, new_amount), true);
+        assert_eq!(bills.inner.get(&bill.name).unwrap().amount, new_amount);
+    }
+
+    #[test]
+    fn test_get_all_bills() {
+        let mut bills = Bills::new();
+        let bill1 = Bill {
+            name: "Gas".to_string(),
+            amount: 120.0,
+        };
+        let bill2 = Bill {
+            name: "Rent".to_string(),
+            amount: 1000.0,
+        };
+        bills.add(bill1.clone());
+        bills.add(bill2.clone());
+        let all_bills = bills.get_all();
+        assert_eq!(all_bills.len(), 2);
+        assert_eq!(all_bills.contains(&&bill1), true);
+        assert_eq!(all_bills.contains(&&bill2), true);
+    }
 }
